@@ -5,266 +5,252 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>半成品(米飯)盲測評分系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; }
         .score-card { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
         .score-card.active { border-color: #1f2937; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .score-card:hover { transform: translateY(-1px); background-color: #ffffff; }
+        .tab-btn { transition: all 0.3s; }
+        .tab-btn.active { background-color: #1f2937; color: white; border-color: #1f2937; }
+        .hidden-tab { display: none; }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b-2 border-gray-800 pb-6">
-            <div>
-                <h1 class="text-4xl font-black text-gray-900 tracking-tight">半成品(米飯)盲測評分系統</h1>
-                <!-- 已移除版本資訊文字 -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b-2 border-gray-800 pb-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">半成品(米飯)盲測評分系統</h1>
             </div>
-            <div class="mt-4 md:mt-0 flex gap-3">
-                <button onclick="exportCSV()" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg flex items-center gap-2">
+            <div class="mt-4 md:mt-0 flex flex-wrap justify-center gap-3">
+                <button onclick="exportCSV()" class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg flex items-center gap-2">
                     匯出 CSV 報表
                 </button>
-                <button onclick="resetForm()" class="bg-white text-gray-600 px-6 py-3 rounded-xl font-bold border border-gray-200 hover:bg-gray-50 transition">
-                    清空重置
+                <button onclick="resetAll()" class="bg-white text-red-500 px-4 py-3 rounded-xl font-bold border border-red-200 hover:bg-red-50 transition text-sm">
+                    全數重置
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- 左側評分區 -->
-            <div class="lg:col-span-8 space-y-8">
-                <!-- 基本資訊 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 border border-gray-100">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">評測者 Assessor</label>
-                        <input type="text" id="assessor" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-gray-400 outline-none" placeholder="輸入評測人員姓名">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">樣品編號 Sample ID</label>
-                        <input type="text" id="sampleId" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-gray-400 outline-none" placeholder="例如: A-01">
-                    </div>
-                </div>
-
-                <!-- 一、外觀 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <span class="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center text-sm">1</span>
-                        一、外觀 (Appearance) <span class="text-sm font-normal text-gray-400 ml-2">權重: 30</span>
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="group-appearance">
-                        <div onclick="setScore('appearance', 1, 0)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="1">
-                            <span class="text-gray-700 font-medium">1. 飯粒不完整、光澤不均勻</span>
-                        </div>
-                        <div onclick="setScore('appearance', 2, 10)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="2">
-                            <span class="text-gray-700 font-medium">2. 飯粒不完整、光澤均勻</span>
-                        </div>
-                        <div onclick="setScore('appearance', 3, 30)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center active" data-val="3">
-                            <span class="text-gray-900 font-bold">3. 飯粒完整、光澤均勻</span>
-                        </div>
-                        <div onclick="setScore('appearance', 4, 20)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="4">
-                            <span class="text-gray-700 font-medium">4. 飯粒完整、光澤不均勻</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 二、口感 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <span class="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center text-sm">2</span>
-                        二、口感 (Texture) <span class="text-sm font-normal text-gray-400 ml-2">權重: 40</span>
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="group-texture">
-                        <div onclick="setScore('texture', 1, 0)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="1">
-                            <span class="text-gray-700 font-medium">1. 極硬</span>
-                        </div>
-                        <div onclick="setScore('texture', 2, 20)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="2">
-                            <span class="text-gray-700 font-medium">2. 偏硬</span>
-                        </div>
-                        <div onclick="setScore('texture', 3, 40)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center active" data-val="3">
-                            <span class="text-gray-900 font-bold">3. 軟硬適中</span>
-                        </div>
-                        <div onclick="setScore('texture', 4, 20)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="4">
-                            <span class="text-gray-700 font-medium">4. 偏軟爛</span>
-                        </div>
-                        <div onclick="setScore('texture', 5, 0)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="5">
-                            <span class="text-gray-700 font-medium">5. 極軟爛</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 三、氣味 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <span class="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center text-sm">3</span>
-                        三、氣味 (Aroma) <span class="text-sm font-normal text-gray-400 ml-2">權重: 30</span>
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="group-aroma">
-                        <div onclick="setScore('aroma', 1, 0)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="1">
-                            <span class="text-gray-700 font-medium">1. 無飯香、有異味</span>
-                        </div>
-                        <div onclick="setScore('aroma', 2, 15)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="2">
-                            <span class="text-gray-700 font-medium">2. 無飯香、無異味</span>
-                        </div>
-                        <div onclick="setScore('aroma', 3, 30)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center active" data-val="3">
-                            <span class="text-gray-900 font-bold">3. 有飯香、無異味</span>
-                        </div>
-                        <div onclick="setScore('aroma', 4, 10)" class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center" data-val="4">
-                            <span class="text-gray-700 font-medium">4. 有飯香、有異味</span>
-                        </div>
-                    </div>
-                </div>
+        <!-- 評測者資訊 -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 items-center">
+            <div class="w-full md:w-1/3">
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">評測者 Assessor</label>
+                <input type="text" id="globalAssessor" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-2 focus:ring-gray-400 outline-none font-bold" placeholder="輸入評測人員姓名">
             </div>
+            <p class="text-gray-400 text-sm hidden md:block">請在下方分頁中分別進行評分。填寫時不會顯示分數。</p>
+        </div>
 
-            <!-- 右側統計區 -->
-            <div class="lg:col-span-4 space-y-6">
-                <!-- 總分卡 -->
-                <div class="bg-gray-900 text-white p-8 rounded-3xl shadow-xl overflow-hidden relative">
-                    <div class="relative z-10">
-                        <p class="text-gray-400 font-bold text-sm uppercase tracking-widest mb-2">Total Weight Score</p>
-                        <div class="flex items-baseline gap-2">
-                            <span id="totalScore" class="text-7xl font-black">100</span>
-                            <span class="text-xl opacity-60">/ 100</span>
-                        </div>
-                        <div class="mt-6 h-2 bg-gray-800 rounded-full overflow-hidden">
-                            <div id="scoreBar" class="h-full bg-green-400 transition-all duration-500" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Tab Bar -->
+        <div id="tabContainer" class="flex flex-wrap gap-2 mb-6">
+            <!-- 樣品標籤會顯示在這裡 -->
+        </div>
 
-                <!-- 特性分析雷達圖 (優化比例) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-gray-700 mb-4">特性分析 (加權比例)</h3>
-                    <div class="w-full aspect-square">
-                        <canvas id="radarChart"></canvas>
-                    </div>
-                    <div class="mt-4 flex justify-between text-[10px] text-gray-400 font-mono border-t pt-2">
-                        <span>外觀 MAX:30</span>
-                        <span>口感 MAX:40</span>
-                        <span>氣味 MAX:30</span>
-                    </div>
-                </div>
-
-                <!-- 評價內容 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <label class="block text-sm font-bold text-gray-700 mb-3">樣品評價內容 (選填)</label>
-                    <textarea id="sampleEvaluation" rows="5" class="w-full bg-gray-50 border-none rounded-xl p-4 text-sm focus:ring-2 focus:ring-gray-400 outline-none" placeholder="描述風味、口感特徵等..."></textarea>
-                </div>
-            </div>
+        <!-- Form Container -->
+        <div id="formContainer">
+            <!-- Sample Forms injected here -->
         </div>
     </div>
 
     <script>
-        let radarChart;
-        const state = {
-            scores: { appearance: 30, texture: 40, aroma: 30 }
-        };
+        let samples = []; 
+        let currentActiveIdx = 0;
 
-        function initChart() {
-            const ctx = document.getElementById('radarChart').getContext('2d');
-            radarChart = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['外觀 (30)', '口感 (40)', '氣味 (30)'],
-                    datasets: [{
-                        data: [30, 40, 30],
-                        backgroundColor: 'rgba(31, 41, 55, 0.1)',
-                        borderColor: 'rgba(31, 41, 55, 1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#1f2937',
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    scales: {
-                        r: {
-                            min: 0,
-                            suggestedMax: 40, 
-                            ticks: { display: false, stepSize: 10 },
-                            grid: { color: '#f3f4f6' },
-                            pointLabels: { 
-                                font: { size: 13, weight: 'bold' },
-                                color: '#374151'
-                            }
-                        }
-                    },
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: { enabled: false }
-                    }
+        // 預設樣品配置
+        const defaultConfigs = [
+            { name: "肉鬆鹽飯", code: "MB-01" },
+            { name: "肉鬆鹽飯", code: "MB-02" },
+            { name: "湖鹽飯", code: "RB-01" },
+            { name: "湖鹽飯", code: "RB-02" }
+        ];
+
+        function createSampleData(name, code, idx) {
+            const id = 'sample-' + Date.now() + '-' + Math.floor(Math.random() * 1000) + '-' + idx;
+            return {
+                id: id,
+                label: name,
+                sampleId: code,
+                scores: { appearance: 30, texture: 40, aroma: 30 }, // 預設滿分，由使用者點選後更新
+                evaluation: "",
+            };
+        }
+
+        function init() {
+            defaultConfigs.forEach((cfg, i) => {
+                samples.push(createSampleData(cfg.name, cfg.code, i));
+            });
+            
+            renderTabs();
+            renderForms();
+            switchTab(0);
+        }
+
+        function switchTab(idx) {
+            currentActiveIdx = idx;
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                if(i === idx) {
+                    btn.classList.add('active');
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
+                else btn.classList.remove('active');
+            });
+            document.querySelectorAll('.sample-form').forEach((form) => {
+                if(form.id === `form-${samples[idx].id}`) form.classList.remove('hidden-tab');
+                else form.classList.add('hidden-tab');
             });
         }
 
-        function setScore(category, val, weightedScore) {
-            const group = document.getElementById(`group-${category}`);
-            group.querySelectorAll('.score-card').forEach(card => {
-                card.classList.remove('active', 'ring-2', 'ring-gray-800');
-                const cardVal = parseInt(card.getAttribute('data-val'));
-                const label = card.querySelector('span');
-                if (cardVal === val) {
-                    card.classList.add('active');
-                    label.classList.add('font-bold', 'text-gray-900');
-                    label.classList.remove('text-gray-700', 'font-medium');
-                } else {
-                    label.classList.remove('font-bold', 'text-gray-900');
-                    label.classList.add('text-gray-700', 'font-medium');
-                }
-            });
-
-            state.scores[category] = weightedScore;
-            
-            const total = state.scores.appearance + state.scores.texture + state.scores.aroma;
-            document.getElementById('totalScore').innerText = total;
-            
-            const bar = document.getElementById('scoreBar');
-            bar.style.width = (total) + '%';
-            if (total >= 80) bar.className = 'h-full bg-green-400 transition-all';
-            else if (total >= 60) bar.className = 'h-full bg-yellow-400 transition-all';
-            else bar.className = 'h-full bg-red-400 transition-all';
-
-            radarChart.data.datasets[0].data = [state.scores.appearance, state.scores.texture, state.scores.aroma];
-            radarChart.update();
+        function renderTabs() {
+            const container = document.getElementById('tabContainer');
+            container.innerHTML = samples.map((s, i) => `
+                <button onclick="switchTab(${i})" class="tab-btn px-8 py-2 rounded-full border-2 border-gray-200 font-bold text-gray-500 hover:border-gray-400">
+                    ${s.label}
+                </button>
+            `).join('');
         }
 
-        function resetForm() {
-            if(!confirm('確定要清空數據嗎？')) return;
-            document.getElementById('assessor').value = '';
-            document.getElementById('sampleId').value = '';
-            document.getElementById('sampleEvaluation').value = '';
-            setScore('appearance', 3, 30);
-            setScore('texture', 3, 40);
-            setScore('aroma', 3, 30);
+        function renderForms() {
+            const container = document.getElementById('formContainer');
+            samples.forEach((sample, i) => {
+                if (document.getElementById(`form-${sample.id}`)) return;
+
+                const formHtml = `
+                    <div id="form-${sample.id}" class="sample-form space-y-6 hidden-tab">
+                        <!-- 資訊區 -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4">
+                            <div class="flex-1">
+                                <label class="text-xs font-bold text-gray-400 uppercase block mb-1">樣品名稱</label>
+                                <div class="text-xl font-bold text-gray-800 p-1">${sample.label}</div>
+                            </div>
+                            <div class="w-full md:w-48">
+                                <label class="text-xs font-bold text-gray-400 uppercase block mb-1">樣品編號</label>
+                                <div class="bg-gray-100 rounded-xl p-3 text-center font-mono font-bold text-gray-900">${sample.sampleId}</div>
+                            </div>
+                        </div>
+
+                        <!-- 評分區 -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <span class="w-6 h-6 bg-gray-900 text-white rounded flex items-center justify-center text-xs">1</span>
+                                一、外觀 (Appearance)
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${renderScoreCard(i, 'appearance', 1, 0, '1. 飯粒不完整、光澤不均勻')}
+                                ${renderScoreCard(i, 'appearance', 2, 10, '2. 飯粒不完整、光澤均勻')}
+                                ${renderScoreCard(i, 'appearance', 3, 30, '3. 飯粒完整、光澤均勻', true)}
+                                ${renderScoreCard(i, 'appearance', 4, 20, '4. 飯粒完整、光澤不均勻')}
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <span class="w-6 h-6 bg-gray-900 text-white rounded flex items-center justify-center text-xs">2</span>
+                                二、口感 (Texture)
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                ${renderScoreCard(i, 'texture', 1, 0, '1. 極硬')}
+                                ${renderScoreCard(i, 'texture', 2, 20, '2. 偏硬')}
+                                ${renderScoreCard(i, 'texture', 3, 40, '3. 軟硬適中', true)}
+                                ${renderScoreCard(i, 'texture', 4, 20, '4. 偏軟爛')}
+                                ${renderScoreCard(i, 'texture', 5, 0, '5. 極軟爛')}
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <span class="w-6 h-6 bg-gray-900 text-white rounded flex items-center justify-center text-xs">3</span>
+                                三、氣味 (Aroma)
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${renderScoreCard(i, 'aroma', 1, 0, '1. 無飯香、有異味')}
+                                ${renderScoreCard(i, 'aroma', 2, 15, '2. 無飯香、無異味')}
+                                ${renderScoreCard(i, 'aroma', 3, 30, '3. 有飯香、無異味', true)}
+                                ${renderScoreCard(i, 'aroma', 4, 10, '4. 有飯香、有異味')}
+                            </div>
+                        </div>
+
+                        <!-- 評價區 -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <label class="block text-sm font-bold text-gray-700 mb-3">評測筆記 (Flavor Notes)</label>
+                            <textarea oninput="updateSampleInfo(${i}, 'evaluation', this.value)" rows="4" class="w-full bg-gray-50 border-none rounded-xl p-4 text-sm focus:ring-2 focus:ring-gray-400 outline-none" placeholder="描述此樣品的風味特徵..."></textarea>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', formHtml);
+            });
+        }
+
+        function renderScoreCard(sampleIdx, category, val, score, text, isActive = false) {
+            const activeClass = isActive ? 'active' : '';
+            const fontClass = isActive ? 'font-bold text-gray-900' : 'text-gray-700 font-medium';
+            return `
+                <div onclick="setScore(${sampleIdx}, '${category}', ${val}, ${score}, this)" 
+                     class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center ${activeClass}" 
+                     data-val="${val}">
+                    <span class="${fontClass}">${text}</span>
+                </div>
+            `;
+        }
+
+        function setScore(sampleIdx, category, val, weightedScore, element) {
+            const sample = samples[sampleIdx];
+            const parent = element.parentElement;
+            parent.querySelectorAll('.score-card').forEach(card => {
+                card.classList.remove('active');
+                const span = card.querySelector('span');
+                span.classList.remove('font-bold', 'text-gray-900');
+                span.classList.add('text-gray-700', 'font-medium');
+            });
+
+            element.classList.add('active');
+            const targetSpan = element.querySelector('span');
+            targetSpan.classList.add('font-bold', 'text-gray-900');
+            targetSpan.classList.remove('text-gray-700', 'font-medium');
+
+            // 雖然畫面上看不到，但後台數據會更新，以便匯出報表
+            sample.scores[category] = weightedScore;
+        }
+
+        function updateSampleInfo(idx, field, value) {
+            samples[idx][field] = value;
+        }
+
+        function resetAll() {
+            if(!confirm('這將清除所有已選數據，確定嗎？')) return;
+            samples = [];
+            document.getElementById('formContainer').innerHTML = '';
+            document.getElementById('globalAssessor').value = '';
+            init();
         }
 
         function exportCSV() {
-            const assessor = document.getElementById('assessor').value || "未填寫";
-            const sampleId = document.getElementById('sampleId').value || "未註明";
-            const total = state.scores.appearance + state.scores.texture + state.scores.aroma;
-            const evalText = document.getElementById('sampleEvaluation').value.replace(/\n/g, " ").replace(/,/g, "，");
+            const assessor = document.getElementById('globalAssessor').value || "未填寫";
+            const headers = ["樣品名稱", "評測者", "樣品編號", "外觀得分", "口感得分", "氣味得分", "總分", "評價內容"];
+            
+            const rows = samples.map(s => {
+                const total = s.scores.appearance + s.scores.texture + s.scores.aroma;
+                return [
+                    s.label,
+                    assessor,
+                    s.sampleId || "未註明",
+                    s.scores.appearance,
+                    s.scores.texture,
+                    s.scores.aroma,
+                    total,
+                    (s.evaluation || "").replace(/\n/g, " ").replace(/,/g, "，")
+                ];
+            });
 
-            const headers = ["評測者", "樣品編號", "外觀", "口感", "氣味", "整體分數", "樣品評價內容(選填)"];
-            const dataRow = [
-                assessor,
-                sampleId,
-                state.scores.appearance,
-                state.scores.texture,
-                state.scores.aroma,
-                total,
-                evalText
-            ];
-
-            const csvContent = "\uFEFF" + [headers, dataRow].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
+            const csvContent = "\uFEFF" + [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `半成品米飯盲測評分_${sampleId}_${new Date().toLocaleDateString()}.csv`;
+            link.download = `米飯盲測隱藏評分報表_${new Date().toISOString().slice(0,10)}.csv`;
             link.click();
         }
 
-        window.onload = initChart;
+        window.onload = init;
     </script>
 </body>
 </html>
