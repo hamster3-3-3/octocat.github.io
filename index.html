@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    <!-- Encoding: keep UTF-8 to safely render Chinese and avoid unexpected token issues -->
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>半成品(米飯)盲測評分系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -45,25 +47,104 @@
 
         <!-- Tab Bar -->
         <div id="tabContainer" class="flex flex-wrap gap-2 mb-6">
-            <!-- 樣品類別分頁標籤 -->
+            <!-- 預設靜態內容（避免某些預覽環境禁用 JS 時畫面空白） -->
+            <button class="tab-btn active px-10 py-3 rounded-full border-2 border-gray-200 font-bold text-gray-500 hover:border-gray-400">肉鬆</button>
+            <button class="tab-btn px-10 py-3 rounded-full border-2 border-gray-200 font-bold text-gray-500 hover:border-gray-400">湖鹽飯</button>
         </div>
 
         <!-- Form Container -->
         <div id="formContainer">
-            <!-- 動態生成的表單內容 -->
+            <!-- 預設靜態內容（JS 可用時會被 renderCurrentForm() 覆蓋成互動版） -->
+            <div class="sample-form space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">樣品類別</label>
+                        <div class="text-2xl font-black text-gray-900 p-1">肉鬆</div>
+                    </div>
+                    <div class="w-full md:w-64">
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">樣品編號</label>
+                        <div class="relative">
+                            <select class="w-full bg-gray-100 border-2 border-transparent focus:border-gray-900 rounded-xl p-3 font-mono font-bold text-gray-900 outline-none cursor-pointer" disabled>
+                                <option selected>A</option>
+                                <option>B</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">▼</div>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-400">（若預覽環境禁用 JS，互動功能將無法使用，但版面仍可預覽）</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-gray-900 text-white rounded flex items-center justify-center text-xs">1</span>
+                        一、外觀 (Appearance)
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">1. 飯粒不完整、光澤不均勻</span></div>
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">2. 飯粒不完整、光澤均勻</span></div>
+                        <div class="score-card active p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="font-bold text-gray-900">3. 飯粒完整、光澤均勻</span></div>
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">4. 飯粒完整、光澤不均勻</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-gray-900 text-white rounded flex items-center justify-center text-xs">2</span>
+                        二、口感 (Texture)
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">1. 極硬</span></div>
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">2. 偏硬</span></div>
+                        <div class="score-card active p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="font-bold text-gray-900">3. 軟硬適中</span></div>
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">4. 偏軟爛</span></div>
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">5. 極軟爛</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-gray-900 text-white rounded flex items-center justify-center text-xs">3</span>
+                        三、氣味 (Aroma)
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">1. 無飯香、有異味</span></div>
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">2. 無飯香、無異味</span></div>
+                        <div class="score-card active p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="font-bold text-gray-900">3. 有飯香、無異味</span></div>
+                        <div class="score-card p-4 rounded-xl bg-gray-50 flex justify-between items-center"><span class="text-gray-700 font-medium">4. 有飯香、有異味</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">評測筆記 (Flavor Notes)</label>
+                    <textarea rows="4" class="w-full bg-gray-50 border-none rounded-xl p-4 text-sm" placeholder="描述此樣品的風味特徵..." disabled></textarea>
+                </div>
+            </div>
         </div>
+
+        <!-- 測試結果（開發用，可留著） -->
+        <div id="debug" class="mt-6 text-xs text-gray-500"></div>
     </div>
 
     <script>
+        /**
+         * 功能：按下「匯出 CSV 報表」時：
+         *  - 下載 CSV（保留原本行為）
+         *  - 另外透過 Google Apps Script Web App 上傳到 Google Drive
+         *
+         * 注意：純 HTML 無法直接寫入你的 Google Drive；必須透過 Apps Script Web App（或 Drive API OAuth）。
+         */
+        const DRIVE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw-RUOruPvni0M37kDhtulr99Q4YwD-Sm9Jp9vNZfrHtfedQL2puekcX9bDSOpU9TWH/exec"; // 例如：https://script.google.com/macros/s/XXXX/exec
+        const UPLOAD_TOKEN = "rice_test_2025";     // 建議設定；Apps Script 端同樣驗證
+
         let categories = ["肉鬆", "湖鹽飯"];
-        let dataStore = {}; 
+        let dataStore = {};
         let currentCategoryIdx = 0;
 
         // 初始化資料儲存器
         function initDataStore() {
             categories.forEach(cat => {
                 dataStore[cat] = {
-                    currentSelection: "A", 
+                    currentSelection: "A",
                     A: { scores: { appearance: 30, texture: 40, aroma: 30 }, evaluation: "", valIdx: { appearance: 3, texture: 3, aroma: 3 } },
                     B: { scores: { appearance: 30, texture: 40, aroma: 30 }, evaluation: "", valIdx: { appearance: 3, texture: 3, aroma: 3 } }
                 };
@@ -71,9 +152,17 @@
         }
 
         function init() {
-            initDataStore();
-            renderTabs();
-            renderCurrentForm();
+            try {
+                initDataStore();
+                renderTabs();
+                renderCurrentForm();
+                runTests();
+            } catch (e) {
+                // 若預覽環境對 script 有限制，至少把錯誤顯示出來，方便你定位
+                const el = document.getElementById('debug');
+                if (el) el.textContent = 'Init error: ' + (e?.message || e);
+                console.error(e);
+            }
         }
 
         function renderTabs() {
@@ -190,7 +279,7 @@
             const version = dataStore[catName].currentSelection;
             dataStore[catName][version].valIdx[scoreCat] = val;
             dataStore[catName][version].scores[scoreCat] = weightedScore;
-            renderCurrentForm(); 
+            renderCurrentForm();
         }
 
         function updateEvaluation(catName, value) {
@@ -203,13 +292,20 @@
             location.reload();
         }
 
+        function normalizeCsvCell(text) {
+            // 避免 CSV 被換行破壞；同時把半形逗號替換成全形逗號
+            return String(text)
+                .replace(/\r\n|\n|\r/g, ' ')
+                .replace(/,/g, '，');
+        }
+
         function exportCSV() {
-            const assessor = document.getElementById('globalAssessor').value || "未填寫";
-            const headers = ["樣品類別", "評測者", "樣品代號", "外觀得分", "口感得分", "氣味得分", "總計得分", "評測筆記"];
-            
-            let rows = [];
+            const assessor = document.getElementById('globalAssessor').value || '未填寫';
+            const headers = ['樣品類別', '評測者', '樣品代號', '外觀得分', '口感得分', '氣味得分', '總計得分', '評測筆記'];
+
+            const rows = [];
             categories.forEach(cat => {
-                ["A", "B"].forEach(ver => {
+                ['A', 'B'].forEach(ver => {
                     const d = dataStore[cat][ver];
                     const total = d.scores.appearance + d.scores.texture + d.scores.aroma;
                     rows.push([
@@ -220,17 +316,92 @@
                         d.scores.texture,
                         d.scores.aroma,
                         total,
-                        (d.evaluation || "").replace(/\n/g, " ").replace(/,/g, "，")
+                        normalizeCsvCell(d.evaluation || '')
                     ]);
                 });
             });
 
-            const csvContent = "\uFEFF" + [headers, ...rows].map(r => r.map(c => `"${c}"`).join(",")).join("\n");
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `米飯盲測全數據報表_${new Date().toISOString().slice(0,10)}.csv`;
-            link.click();
+            const BOM = "\uFEFF";
+            const csvBody = [headers, ...rows]
+                .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            const csvContent = BOM + csvBody;
+
+            const filename = `米飯盲測全數據報表_${new Date().toISOString().slice(0,10)}.csv`;
+
+            // 僅上傳到 Google Drive，不進行本地下載
+            uploadCSVToDrive({ csvContent, filename, assessor });
+        }
+
+        async function uploadCSVToDrive({ csvContent, filename, assessor }) {
+            if (!DRIVE_WEBAPP_URL) {
+                alert('尚未設定 DRIVE_WEBAPP_URL，因此無法上傳到雲端硬碟。');
+                return;
+            }
+
+            /**
+             * 重要：Apps Script Web App 常見會因為 CORS preflight (OPTIONS) 導致瀏覽器 fetch 顯示 Failed to fetch。
+             * 觸發原因通常是 Content-Type: application/json。
+             * 解法：改用「簡單請求」(simple request)，用 application/x-www-form-urlencoded 並不自行設定 headers。
+             */
+            const payload = {
+                token: UPLOAD_TOKEN,
+                filename,
+                assessor,
+                csv: csvContent
+            };
+
+            // 使用 URLSearchParams 送出，避免 preflight
+            const formBody = new URLSearchParams({ payload: JSON.stringify(payload) });
+
+            try {
+                const res = await fetch(DRIVE_WEBAPP_URL, {
+                    method: 'POST',
+                    body: formBody
+                });
+
+                // 注意：若服務端回傳不是 JSON，這裡仍可讀 text 再 parse
+                const raw = await res.text();
+                let out;
+                try { out = JSON.parse(raw); } catch { out = { ok: false, message: raw }; }
+
+                if (!res.ok || !out.ok) {
+                    throw new Error(out.message || 'Upload failed');
+                }
+
+                alert('提交成功');
+            } catch (err) {
+                console.error(err);
+                alert('上傳失敗：' + (err?.message || err));
+            }
+        }
+
+        // ===== 內建自測（不影響功能；方便你確認字串/正則不會再炸） =====
+        function runTests() {
+            const log = (msg) => {
+                const el = document.getElementById('debug');
+                el.textContent = msg;
+            };
+
+            try {
+                // Test 1: normalizeCsvCell removes all newline variants
+                const normalized = normalizeCsvCell('a\n"b",c\r\nd');
+                console.assert(!/\n|\r/.test(normalized), 'normalizeCsvCell should remove newlines');
+                console.assert(normalized.includes('，'), 'normalizeCsvCell should replace commas with ，');
+
+                // Test 2: CSV escaping doubles quotes correctly
+                const doubled = String('x"y').replace(/"/g, '""');
+                console.assert(doubled === 'x""y', 'double quote escaping should work');
+
+                // Test 3: BOM is applied as first char code
+                const BOM = "\uFEFF";
+                const csv = BOM + 'a,b';
+                console.assert(csv.charCodeAt(0) === 0xFEFF, 'CSV should start with BOM');
+
+                log('Self-test: OK');
+            } catch (e) {
+                log('Self-test: FAILED - ' + (e?.message || e));
+            }
         }
 
         window.onload = init;
