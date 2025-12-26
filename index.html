@@ -27,8 +27,9 @@
                 <h1 class="text-3xl font-black text-gray-900 tracking-tight">半成品(米飯)盲測評分系統</h1>
             </div>
             <div class="mt-4 md:mt-0 flex flex-wrap justify-center gap-3">
+                <!-- ✅ 按鈕名稱已由「匯出 CSV 報表」改為「提交表單」 -->
                 <button onclick="exportCSV()" class="bg-gray-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition shadow-lg flex items-center gap-2">
-                    匯出 CSV 報表
+                    提交表單
                 </button>
                 <button onclick="resetAll()" class="bg-white text-red-500 px-4 py-3 rounded-xl font-bold border border-red-200 hover:bg-red-50 transition text-sm">
                     全數重置
@@ -127,14 +128,13 @@
 
     <script>
         /**
-         * 功能：按下「匯出 CSV 報表」時：
-         *  - 下載 CSV（保留原本行為）
-         *  - 另外透過 Google Apps Script Web App 上傳到 Google Drive
+         * 功能：按下「提交表單」時：
+         *  - 透過 Google Apps Script Web App 上傳到 Google Drive
          *
          * 注意：純 HTML 無法直接寫入你的 Google Drive；必須透過 Apps Script Web App（或 Drive API OAuth）。
          */
-        const DRIVE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw-RUOruPvni0M37kDhtulr99Q4YwD-Sm9Jp9vNZfrHtfedQL2puekcX9bDSOpU9TWH/exec"; // 例如：https://script.google.com/macros/s/XXXX/exec
-        const UPLOAD_TOKEN = "rice_test_2025";     // 建議設定；Apps Script 端同樣驗證
+        const DRIVE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw-RUOruPvni0M37kDhtulr99Q4YwD-Sm9Jp9vNZfrHtfedQL2puekcX9bDSOpU9TWH/exec";
+        const UPLOAD_TOKEN = "rice_test_2025";
 
         let categories = ["肉鬆", "湖鹽飯"];
         let dataStore = {};
@@ -158,7 +158,6 @@
                 renderCurrentForm();
                 runTests();
             } catch (e) {
-                // 若預覽環境對 script 有限制，至少把錯誤顯示出來，方便你定位
                 const el = document.getElementById('debug');
                 if (el) el.textContent = 'Init error: ' + (e?.message || e);
                 console.error(e);
@@ -293,12 +292,12 @@
         }
 
         function normalizeCsvCell(text) {
-            // 避免 CSV 被換行破壞；同時把半形逗號替換成全形逗號
             return String(text)
                 .replace(/\r\n|\n|\r/g, ' ')
                 .replace(/,/g, '，');
         }
 
+        // 仍沿用原本函式名稱 exportCSV（只是按鈕顯示文字改為「提交表單」）
         function exportCSV() {
             const assessor = document.getElementById('globalAssessor').value || '未填寫';
             const headers = ['樣品類別', '評測者', '樣品代號', '外觀得分', '口感得分', '氣味得分', '總計得分', '評測筆記'];
@@ -339,11 +338,6 @@
                 return;
             }
 
-            /**
-             * 重要：Apps Script Web App 常見會因為 CORS preflight (OPTIONS) 導致瀏覽器 fetch 顯示 Failed to fetch。
-             * 觸發原因通常是 Content-Type: application/json。
-             * 解法：改用「簡單請求」(simple request)，用 application/x-www-form-urlencoded 並不自行設定 headers。
-             */
             const payload = {
                 token: UPLOAD_TOKEN,
                 filename,
@@ -351,7 +345,6 @@
                 csv: csvContent
             };
 
-            // 使用 URLSearchParams 送出，避免 preflight
             const formBody = new URLSearchParams({ payload: JSON.stringify(payload) });
 
             try {
@@ -360,7 +353,6 @@
                     body: formBody
                 });
 
-                // 注意：若服務端回傳不是 JSON，這裡仍可讀 text 再 parse
                 const raw = await res.text();
                 let out;
                 try { out = JSON.parse(raw); } catch { out = { ok: false, message: raw }; }
@@ -376,7 +368,6 @@
             }
         }
 
-        // ===== 內建自測（不影響功能；方便你確認字串/正則不會再炸） =====
         function runTests() {
             const log = (msg) => {
                 const el = document.getElementById('debug');
@@ -384,16 +375,13 @@
             };
 
             try {
-                // Test 1: normalizeCsvCell removes all newline variants
                 const normalized = normalizeCsvCell('a\n"b",c\r\nd');
                 console.assert(!/\n|\r/.test(normalized), 'normalizeCsvCell should remove newlines');
                 console.assert(normalized.includes('，'), 'normalizeCsvCell should replace commas with ，');
 
-                // Test 2: CSV escaping doubles quotes correctly
                 const doubled = String('x"y').replace(/"/g, '""');
                 console.assert(doubled === 'x""y', 'double quote escaping should work');
 
-                // Test 3: BOM is applied as first char code
                 const BOM = "\uFEFF";
                 const csv = BOM + 'a,b';
                 console.assert(csv.charCodeAt(0) === 0xFEFF, 'CSV should start with BOM');
